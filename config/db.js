@@ -25,7 +25,7 @@ export const connectDB = async () => {
 
     await client.connect();
 
-    db = client.db("studynook");
+    db = client.db("study-nook");
 
     await db.command({ ping: 1 });
 
