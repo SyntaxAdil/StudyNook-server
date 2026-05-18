@@ -128,36 +128,39 @@ app.get("/rooms/:id", async (req, res) => {
 
 // provide user data
 
-app.get("/users/:id", async (req, res) => {
-  try {
-    const id = req.params.id;
+// app.get("/users/:id", async (req, res) => {
+//   try {
+//     const id = req.params.id;
 
-    const user = await userCollection()
-      .find({ _id: new ObjectId(id) })
-      .toArray();
-    if (user) {
-      return res.status(200).json({
-        success: true,
-        message: "User data fetched successfully",
-        data: {
-          name: user.name,
-          image: user.image,
-          email: user.email,
-        },
-      });
-    } else {
-      return res.status(400).json({
-        success: false,
-        message: "User Not found",
-      });
-    }
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Internal Server Error",
-    });
-  }
-});
+//     const user = await userCollection()
+//       .find({ _id: new ObjectId(id) })
+//       .toArray();
+
+      
+      
+//     if (user[0]) {
+//       return res.status(200).json({
+//         success: true,
+//         message: "User data fetched successfully",
+//         data: {
+//           name: user[0].name,
+//           image: user[0].image,
+//           email: user[0].email,
+//         },
+//       });
+//     } else {
+//       return res.status(400).json({
+//         success: false,
+//         message: "User Not found",
+//       });
+//     }
+//   } catch (error) {
+//     return res.status(500).json({
+//       success: false,
+//       message: "Internal Server Error",
+//     });
+//   }
+// });
 
 app.listen(port, () => {
   console.log(`Server is running on ${port}`);
