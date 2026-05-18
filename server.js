@@ -34,24 +34,29 @@ app.post("/rooms", async (req, res) => {
 app.get("/rooms", async (req, res) => {
   try {
     const search = req.query.search?.trim();
-    let searchRoom;
+    const amenities = req.query.amenities?.trim();
+
+    let queryRoom = {};
+
     if (search) {
-      searchRoom = await roomsCollection()
-        .find({
-          roomName: {
-            $regex: search,
-            $options: "i",
-          },
-        })
-        .toArray();
-    } else {
-      searchRoom = await roomsCollection().find().toArray();
+      queryRoom.roomName = {
+        $regex: search,
+        $options: "i",
+      };
     }
+
+    if (amenities) {
+      queryRoom.amenities = {
+        $in: [amenities],
+      };
+    }
+
+    const resultRoom = await roomsCollection().find(queryRoom).toArray();
 
     return res.status(200).json({
       success: true,
       message: "Room fetched successfully",
-      data: searchRoom,
+      data: resultRoom,
     });
   } catch (error) {
     return res.status(500).json({
@@ -60,7 +65,6 @@ app.get("/rooms", async (req, res) => {
     });
   }
 });
-
 app.listen(port, () => {
   console.log(`Server is running on ${port}`);
 });
