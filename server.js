@@ -104,6 +104,28 @@ app.get("/feautred-rooms", async (req, res) => {
   }
 });
 
+// get a rooms by id
+
+app.get("/rooms/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    const resultRoom = await roomsCollection()
+      .find({ _id: new ObjectId(id) })
+      .toArray();
+    return res.status(200).json({
+      success: true,
+      message: "Room fetched successfully",
+      data: resultRoom,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server is running on ${port}`);
 });
