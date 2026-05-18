@@ -79,6 +79,29 @@ app.get("/rooms", async (req, res) => {
     });
   }
 });
+
+// available study  room home route
+app.get("/feautred-rooms", async (req, res) => {
+  try {
+    const resultRoom = await roomsCollection()
+      .find()
+      .sort({ createdAt: -1 })
+      .limit(6)
+      .toArray();
+
+    return res.status(200).json({
+      success: true,
+      message: "Room fetched successfully",
+      data: resultRoom,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server is running on ${port}`);
 });
