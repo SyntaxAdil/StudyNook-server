@@ -48,8 +48,10 @@ app.get("/rooms", async (req, res) => {
     }
 
     if (amenities) {
+      const amenitiesArray = amenities.split(",").map((a) => a.trim());
+
       queryRoom.amenities = {
-        $in: [amenities],
+        $in: amenitiesArray,
       };
     }
 
