@@ -19,7 +19,30 @@ app.post("/rooms", async (req, res) => {
       res.status(400).json({ success: false, message: "Give valid data" });
 
     const newRoom = await roomsCollection().insertOne(body);
-    res.status(200).json({ success: true, message: "Room created successfully" });
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "Room created successfully",
+        data: newRoom,
+      });
+  } catch (error) {
+    res.status(501).json({ success: false, message: "Internal Server Error" });
+  }
+});
+
+// get rooms
+
+app.get("/rooms", async (req, res) => {
+  try {
+    const allRoom = await roomsCollection().find().toArray();
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "Room fetched successfully",
+        data: allRoom,
+      });
   } catch (error) {
     res.status(501).json({ success: false, message: "Internal Server Error" });
   }
