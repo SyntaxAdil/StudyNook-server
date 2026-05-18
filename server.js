@@ -108,6 +108,28 @@ app.patch("/rooms", async (req, res) => {
   }
 });
 
+// delete room
+
+app.delete("/rooms/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    const deleteRoom = await roomsCollection().deleteOne({
+      _id: new ObjectId(id),
+    });
+    return res.status(200).json({
+      success: true,
+      message: "Room deleted successfully",
+      data: deleteRoom,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+});
+
 // available study  room home route
 app.get("/feautred-rooms", async (req, res) => {
   try {
