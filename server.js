@@ -29,12 +29,14 @@ app.post("/rooms", async (req, res) => {
   }
 });
 
-// get rooms with searching
+// get rooms with searching + amenities
 
 app.get("/rooms", async (req, res) => {
   try {
     const search = req.query.search?.trim();
     const amenities = req.query.amenities?.trim();
+    const minRate = req.query.min?.trim();
+    const maxRate = req.query.max?.trim();
 
     let queryRoom = {};
 
@@ -49,6 +51,18 @@ app.get("/rooms", async (req, res) => {
       queryRoom.amenities = {
         $in: [amenities],
       };
+    }
+
+    if (minRate || maxRate) {
+      queryRoom.hourlyRate = {};
+
+      if (minRate) {
+        queryRoom.hourlyRate.$gte = Number(minRate);
+      }
+
+      if (maxRate) {
+        queryRoom.hourlyRate.$lte = Number(maxRate);
+      }
     }
 
     const resultRoom = await roomsCollection().find(queryRoom).toArray();
