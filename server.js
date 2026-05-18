@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import app from "./app.js";
-import { roomsCollection, connectDB } from "./config/db.js";
+import { roomsCollection, connectDB, userCollection } from "./config/db.js";
 import { ObjectId } from "mongodb";
 
 const port = process.env.PORT;
@@ -118,6 +118,39 @@ app.get("/rooms/:id", async (req, res) => {
       message: "Room fetched successfully",
       data: resultRoom,
     });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+});
+
+// provide user data
+
+app.get("/users/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    const user = await userCollection()
+      .find({ _id: new ObjectId(id) })
+      .toArray();
+    if (user) {
+      return res.status(200).json({
+        success: true,
+        message: "User data fetched successfully",
+        data: {
+          name: user.name,
+          image: user.image,
+          email: user.email,
+        },
+      });
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: "User Not found",
+      });
+    }
   } catch (error) {
     return res.status(500).json({
       success: false,

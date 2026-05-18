@@ -45,3 +45,11 @@ export const roomsCollection = () => {
   return db.collection("rooms");
 };
 
+export const userCollection = () => {
+  if (!db) {
+    throw new Error("Database not connected");
+  }
+
+  return db.collection("user");
+};
+
