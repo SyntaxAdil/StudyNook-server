@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import app from "./app.js";
-import { roomsCollection, connectDB, userCollection } from "./config/db.js";
+import { roomsCollection, connectDB, bookingCollection } from "./config/db.js";
 import { ObjectId } from "mongodb";
 
 const port = process.env.PORT;
@@ -82,6 +82,32 @@ app.get("/rooms", async (req, res) => {
   }
 });
 
+// update room data
+
+app.patch("/rooms", async (req, res) => {
+  try {
+    const body = req.body;
+    const { _id, ...updateData } = body;
+    const updateRoom = await roomsCollection().updateOne(
+      { _id: new ObjectId(body._id) },
+      {
+        $set: updateData,
+      },
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Room updated successfully",
+      data: updateRoom,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+});
+
 // available study  room home route
 app.get("/feautred-rooms", async (req, res) => {
   try {
@@ -136,8 +162,6 @@ app.get("/rooms/:id", async (req, res) => {
 //       .find({ _id: new ObjectId(id) })
 //       .toArray();
 
-      
-      
 //     if (user[0]) {
 //       return res.status(200).json({
 //         success: true,
@@ -161,6 +185,8 @@ app.get("/rooms/:id", async (req, res) => {
 //     });
 //   }
 // });
+
+// create new booking
 
 app.listen(port, () => {
   console.log(`Server is running on ${port}`);
