@@ -76,9 +76,7 @@ app.get("/rooms", async (req, res) => {
     // amenities filter
 
     if (amenities) {
-      const amenitiesArray = amenities
-        .split(",")
-        .map((a) => a.trim());
+      const amenitiesArray = amenities.split(",").map((a) => a.trim());
 
       queryRoom.amenities = {
         $in: amenitiesArray,
@@ -99,9 +97,7 @@ app.get("/rooms", async (req, res) => {
       }
     }
 
-    const result = await roomsCollection()
-      .find(queryRoom)
-      .toArray();
+    const result = await roomsCollection().find(queryRoom).toArray();
 
     return res.status(200).json({
       success: true,
@@ -180,6 +176,7 @@ app.patch("/rooms/:id", async (req, res) => {
     const room = await roomsCollection().findOne({
       _id: new ObjectId(id),
     });
+    
 
     if (!room) {
       return res.status(404).json({
@@ -196,6 +193,7 @@ app.patch("/rooms/:id", async (req, res) => {
         $set: body,
       },
     );
+    
 
     return res.status(200).json({
       success: true,
@@ -359,13 +357,13 @@ app.post("/book-room", async (req, res) => {
 
 // my bookings
 
-app.get("/my-bookings/:email", async (req, res) => {
+app.get("/my-bookings/:id", async (req, res) => {
   try {
-    const email = req.params.email;
+    const id = req.params.id;
 
     const result = await bookingCollection()
       .find({
-        bookedByEmail: email,
+        bookedBy:new ObjectId(id)
       })
       .toArray();
 
