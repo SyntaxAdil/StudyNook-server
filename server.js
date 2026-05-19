@@ -110,12 +110,12 @@ app.patch("/rooms", async (req, res) => {
 
 // delete room
 
-app.delete("/rooms/:id", async (req, res) => {
+app.delete("/rooms", async (req, res) => {
   try {
-    const id = req.params.id;
+    const body = req.body;
 
     const deleteRoom = await roomsCollection().deleteOne({
-      _id: new ObjectId(id),
+      _id: new ObjectId(body._id),
     });
     return res.status(200).json({
       success: true,
@@ -210,6 +210,48 @@ app.get("/rooms/:id", async (req, res) => {
 
 // create new booking
 
+app.post("/book-room", async (req, res) => {
+  try {
+    const body = req.body;
+
+    console.log(body);
+
+    const start = Number(body.start);
+    const end = Number(body.end);
+if (end <= start) {
+  return res.status(400).json({
+    message: "End must be greater than start",
+  });
+}
+    const query = {
+      date: body.date,
+      start: start,
+      end: end,
+    };
+
+
+    const checkConflict = await bookingCollection().find(query).toArray();
+
+    if (checkConflict.length > 0) {
+      return res.status(409).json({
+        message: "Conflict Exists",
+      });
+    }
+  
+
+    const newBooking = await bookingCollection().insertOne(body);
+
+    return res.status(200).json({
+      success: true,
+      message: "added",
+      data: newBooking,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+});
 app.listen(port, () => {
   console.log(`Server is running on ${port}`);
 });
