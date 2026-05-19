@@ -115,13 +115,13 @@ app.patch("/rooms", async (req, res) => {
 
 // delete room
 
-app.delete("/rooms", async (req, res) => {
+app.delete("/rooms/:id", async (req, res) => {
   try {
-    const body = req.body;
+      const id = req.params.id;
 
-    const deleteRoom = await roomsCollection().deleteOne({
-      _id: new ObjectId(body._id),
-    });
+      const deleteRoom = await roomsCollection().deleteOne({
+    _id: new ObjectId(id),
+  });
     return res.status(200).json({
       success: true,
       message: "Room deleted successfully",
@@ -163,9 +163,10 @@ app.get("/rooms/:id", async (req, res) => {
   try {
     const id = req.params.id;
 
-    const resultRoom = await roomsCollection()
-      .find({ _id: new ObjectId(id) })
-      .toArray();
+    const resultRoom = await roomsCollection().findOne({
+      _id: new ObjectId(id),
+    });
+
     return res.status(200).json({
       success: true,
       message: "Room fetched successfully",
@@ -237,9 +238,16 @@ app.post("/book-room", async (req, res) => {
     }
 
     const query = {
+      roomId: body.roomId,
       date: body.date,
-      start: start,
-      end: end,
+      status: "confirmed",
+
+      $or: [
+        {
+          start: { $lt: end },
+          end: { $gt: start },
+        },
+      ],
     };
 
     const checkConflict = await bookingCollection().find(query).toArray();
