@@ -2,7 +2,12 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import app from "./app.js";
-import { roomsCollection, connectDB, bookingCollection } from "./config/db.js";
+import {
+  roomsCollection,
+  connectDB,
+  bookingCollection,
+  userCollection,
+} from "./config/db.js";
 import { ObjectId } from "mongodb";
 
 const port = process.env.PORT;
@@ -218,17 +223,26 @@ app.post("/book-room", async (req, res) => {
 
     const start = Number(body.start);
     const end = Number(body.end);
-if (end <= start) {
-  return res.status(400).json({
-    message: "End must be greater than start",
-  });
-}
+    const today = new Date();
+
+    
+    
+    if (new Date(body.date) <= today) {
+      return res.status(400).json({
+        message: "Select a valid date",
+      });
+    }
+    if (end <= start) {
+      return res.status(400).json({
+        message: "End must be greater than start",
+      });
+    }
+
     const query = {
       date: body.date,
       start: start,
       end: end,
     };
-
 
     const checkConflict = await bookingCollection().find(query).toArray();
 
@@ -237,9 +251,17 @@ if (end <= start) {
         message: "Conflict Exists",
       });
     }
-  
 
     const newBooking = await bookingCollection().insertOne(body);
+
+    await userCollection().updateOne(
+      { _id: new ObjectId(body.bookedBy) },
+      {
+        $push: {
+          bookings: newBooking.insertedId,
+        },
+      },
+    );
 
     return res.status(200).json({
       success: true,

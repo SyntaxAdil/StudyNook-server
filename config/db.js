@@ -53,3 +53,11 @@ export const bookingCollection = () => {
   return db.collection("booking");
 };
 
+export const userCollection = () => {
+  if (!db) {
+    throw new Error("Database not connected");
+  }
+
+  return db.collection("user");
+};
+
