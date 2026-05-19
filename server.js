@@ -251,8 +251,8 @@ app.post("/book-room", async (req, res) => {
         message: "Conflict Exists",
       });
     }
-
-    const newBooking = await bookingCollection().insertOne(body);
+    
+    const newBooking = await bookingCollection().insertOne({status:"confirmed",...body});
 
     await userCollection().updateOne(
       { _id: new ObjectId(body.bookedBy) },
@@ -262,6 +262,8 @@ app.post("/book-room", async (req, res) => {
         },
       },
     );
+
+    
 
     return res.status(200).json({
       success: true,
@@ -274,6 +276,10 @@ app.post("/book-room", async (req, res) => {
     });
   }
 });
+
+
+// cancel booking
+
 app.listen(port, () => {
   console.log(`Server is running on ${port}`);
 });
