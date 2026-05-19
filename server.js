@@ -225,8 +225,6 @@ app.post("/book-room", async (req, res) => {
     const end = Number(body.end);
     const today = new Date();
 
-    
-    
     if (new Date(body.date) <= today) {
       return res.status(400).json({
         message: "Select a valid date",
@@ -251,8 +249,11 @@ app.post("/book-room", async (req, res) => {
         message: "Conflict Exists",
       });
     }
-    
-    const newBooking = await bookingCollection().insertOne({status:"confirmed",...body});
+
+    const newBooking = await bookingCollection().insertOne({
+      status: "confirmed",
+      ...body,
+    });
 
     await userCollection().updateOne(
       { _id: new ObjectId(body.bookedBy) },
@@ -262,8 +263,6 @@ app.post("/book-room", async (req, res) => {
         },
       },
     );
-
-    
 
     return res.status(200).json({
       success: true,
@@ -277,6 +276,35 @@ app.post("/book-room", async (req, res) => {
   }
 });
 
+// cancel booking data
+
+app.patch("/book-room", async (req, res) => {
+  try {
+    const body = req.body;
+    
+
+    console.log(body, "patch chceck");
+    const updateRoom = await bookingCollection().updateOne(
+      { _id: new ObjectId(body._id) },
+      {
+        $set: {
+      status: "canceled",
+    },
+      },
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Room updated successfully",
+      data: updateRoom,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+});
 
 // cancel booking
 
