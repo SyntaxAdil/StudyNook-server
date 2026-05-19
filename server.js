@@ -176,7 +176,6 @@ app.patch("/rooms/:id", async (req, res) => {
     const room = await roomsCollection().findOne({
       _id: new ObjectId(id),
     });
-    
 
     if (!room) {
       return res.status(404).json({
@@ -193,7 +192,6 @@ app.patch("/rooms/:id", async (req, res) => {
         $set: body,
       },
     );
-    
 
     return res.status(200).json({
       success: true,
@@ -363,7 +361,7 @@ app.get("/my-bookings/:id", async (req, res) => {
 
     const result = await bookingCollection()
       .find({
-        bookedBy:new ObjectId(id)
+        bookedBy: id,
       })
       .toArray();
 
