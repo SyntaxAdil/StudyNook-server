@@ -380,11 +380,47 @@ app.get("/my-bookings/:id", async (req, res) => {
 
 // cancel booking
 
+app.get("/my-listing/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    const findUser = await userCollection().findOne({
+      _id: new ObjectId(id),
+    });
+
+    
+    if (!findUser) {
+      return res.status(400).json({
+        success: false,
+        message: "User not found.",
+      });
+    }
+
+    const result = await roomsCollection()
+      .find({
+        userId: id,
+      })
+      .toArray();
+
+    return res.status(200).json({
+      success: true,
+      message: "Bookings fetched successfully",
+      data: result,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+});
+
 app.patch("/book-room/:id/cancel", async (req, res) => {
   try {
     const id = req.params.id;
 
     const body = req.body;
+    console.log(id, "cancel room");
 
     const booking = await bookingCollection().findOne({
       _id: new ObjectId(id),
