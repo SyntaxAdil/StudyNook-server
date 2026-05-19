@@ -281,15 +281,22 @@ app.post("/book-room", async (req, res) => {
 app.patch("/book-room", async (req, res) => {
   try {
     const body = req.body;
-    
 
     console.log(body, "patch chceck");
     const updateRoom = await bookingCollection().updateOne(
       { _id: new ObjectId(body._id) },
       {
         $set: {
-      status: "canceled",
-    },
+          status: "canceled",
+        },
+      },
+    );
+    await userCollection().updateOne(
+      { _id: new ObjectId(body.bookedBy) },
+      {
+        $pull: {
+          bookings: new ObjectId(body._id),
+        },
       },
     );
 
