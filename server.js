@@ -53,12 +53,12 @@ app.post("/rooms", verifyToken, async (req, res) => {
         message: "Provide valid data",
       });
     }
-   if (body.userId !== req.user.id) {
-  return res.status(403).json({
-    success: false,
-    message: "Forbidden: User ID mismatch"
-  });
-}
+    if (body.userId !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: "Forbidden: User ID mismatch",
+      });
+    }
     const newRoom = {
       ...body,
       bookingCount: 0,
@@ -205,7 +205,7 @@ app.get("/rooms/:id", async (req, res) => {
 
 // update room
 
-app.patch("/rooms/:id",verifyToken, async (req, res) => {
+app.patch("/rooms/:id", verifyToken, async (req, res) => {
   try {
     const id = req.params.id;
 
@@ -222,12 +222,12 @@ app.patch("/rooms/:id",verifyToken, async (req, res) => {
       });
     }
 
-   if (room.userId !== req.user.id) {
-  return res.status(403).json({
-    success: false,
-    message: "Forbidden access",
-  });
-}
+    if (room.userId !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: "Forbidden access",
+      });
+    }
 
     const result = await roomsCollection().updateOne(
       {
@@ -253,7 +253,7 @@ app.patch("/rooms/:id",verifyToken, async (req, res) => {
 
 // delete room
 
-app.delete("/rooms/:id",verifyToken, async (req, res) => {
+app.delete("/rooms/:id", verifyToken, async (req, res) => {
   try {
     const id = req.params.id;
 
@@ -267,12 +267,12 @@ app.delete("/rooms/:id",verifyToken, async (req, res) => {
         message: "Room not found",
       });
     }
-if (room.userId !== req.user.id) {
-  return res.status(403).json({
-    success: false,
-    message: "Forbidden access",
-  });
-}
+    if (room.userId !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: "Forbidden access",
+      });
+    }
     await bookingCollection().deleteMany({
       roomId: id,
     });
@@ -296,7 +296,7 @@ if (room.userId !== req.user.id) {
 
 // create booking
 
-app.post("/book-room",verifyToken, async (req, res) => {
+app.post("/book-room", verifyToken, async (req, res) => {
   try {
     const body = req.body;
 
@@ -342,12 +342,13 @@ app.post("/book-room",verifyToken, async (req, res) => {
         },
       ],
     };
-if (body.userId !== req.user.id) {
-  return res.status(403).json({
-    success: false,
-    message: "Forbidden: User ID mismatch"
-  });
-}
+    
+    if (body.bookedBy !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: "Forbidden: User ID mismatch",
+      });
+    }
     const existingBooking = await bookingCollection()
       .find(conflictQuery)
       .toArray();
@@ -452,13 +453,11 @@ app.patch("/book-room/:id/cancel", verifyToken, async (req, res) => {
       });
     }
 
-  
-    if (booking.bookedBy !== req.user.id){
-        return res.status(403).json({
-    success: false,
-    message: "Forbidden access",
-  });
-
+    if (booking.bookedBy !== req.user.id) {
+      return res.status(403).json({
+        success: false,
+        message: "Forbidden access",
+      });
     }
 
     const result = await bookingCollection().updateOne(
