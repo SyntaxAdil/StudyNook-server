@@ -97,7 +97,7 @@ app.get("/rooms", async (req, res) => {
       }
     }
 
-    const result = await roomsCollection().find(queryRoom).toArray();
+    const result = await roomsCollection().find(queryRoom).sort({createdAt:-1}).toArray();
 
     return res.status(200).json({
       success: true,
