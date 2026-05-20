@@ -20,7 +20,7 @@ connectDB();
 // middleware
 
 const JWKS = createRemoteJWKSet(
-  new URL(`${process.env.CLIENT_URL || "http://localhost:3000"}/api/auth/jwks`),
+  new URL(`${"http://localhost:3000"}/api/auth/jwks`),
 );
 const verifyToken = async (req, res, next) => {
   const authHeader = req?.headers?.authorization;
@@ -43,7 +43,7 @@ const verifyToken = async (req, res, next) => {
 
 // create room
 
-app.post("/rooms", verifyToken, async (req, res) => {
+app.post("/rooms", async (req, res) => {
   try {
     const body = req.body;
 
@@ -53,12 +53,7 @@ app.post("/rooms", verifyToken, async (req, res) => {
         message: "Provide valid data",
       });
     }
-    if (body.userId !== req.user.id) {
-      return res.status(403).json({
-        success: false,
-        message: "Forbidden: User ID mismatch",
-      });
-    }
+
     const newRoom = {
       ...body,
       bookingCount: 0,
@@ -342,7 +337,7 @@ app.post("/book-room", verifyToken, async (req, res) => {
         },
       ],
     };
-    
+
     if (body.bookedBy !== req.user.id) {
       return res.status(403).json({
         success: false,
@@ -566,6 +561,6 @@ app.get("/my-listing", verifyToken, async (req, res) => {
 //   }
 // });
 
-// app.listen(port, () => {
-//   console.log(`Server is running on ${port}`);
-// });
+app.listen(port, () => {
+  console.log(`Server is running on ${port}`);
+});
