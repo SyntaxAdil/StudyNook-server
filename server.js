@@ -561,6 +561,10 @@ app.get("/my-listing", verifyToken, async (req, res) => {
 //   }
 // });
 
-app.listen(port, () => {
-  console.log(`Server is running on ${port}`);
-});
+if (process.env.NODE_ENV !== "production") {
+  app.listen(port, () => {
+    console.log(`Server is running on ${port}`);
+  });
+}
+
+export default app; 

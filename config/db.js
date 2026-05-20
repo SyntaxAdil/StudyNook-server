@@ -27,7 +27,7 @@ export const connectDB = async () => {
 
     db = client.db("study-nook");
 
-    // await db.command({ ping: 1 });
+    await db.command({ ping: 1 });
 
     console.log(" Connected to MongoDB");
 
