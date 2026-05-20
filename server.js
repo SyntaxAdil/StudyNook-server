@@ -20,7 +20,7 @@ connectDB();
 // middleware
 
 const JWKS = createRemoteJWKSet(
-  new URL(`${"http://localhost:3000"}/api/auth/jwks`),
+  new URL(`${"https://study-nook-bd.vercel.app"}/api/auth/jwks`),
 );
 const verifyToken = async (req, res, next) => {
   const authHeader = req?.headers?.authorization;
