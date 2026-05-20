@@ -152,10 +152,15 @@ app.get("/rooms/:id", async (req, res) => {
       });
     }
 
+    const bookingCount = await bookingCollection().countDocuments({
+      roomId: id,
+      status: "confirmed",
+    });
+
     return res.status(200).json({
       success: true,
       message: "Room fetched successfully",
-      data: result,
+      data: { ...result, bookingCount },
     });
   } catch (error) {
     return res.status(500).json({
@@ -380,41 +385,6 @@ app.get("/my-bookings/:id", async (req, res) => {
 
 // cancel booking
 
-app.get("/my-listing/:id", async (req, res) => {
-  try {
-    const id = req.params.id;
-
-    const findUser = await userCollection().findOne({
-      _id: new ObjectId(id),
-    });
-
-    
-    if (!findUser) {
-      return res.status(400).json({
-        success: false,
-        message: "User not found.",
-      });
-    }
-
-    const result = await roomsCollection()
-      .find({
-        userId: id,
-      })
-      .toArray();
-
-    return res.status(200).json({
-      success: true,
-      message: "Bookings fetched successfully",
-      data: result,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Internal Server Error",
-    });
-  }
-});
-
 app.patch("/book-room/:id/cancel", async (req, res) => {
   try {
     const id = req.params.id;
@@ -482,6 +452,62 @@ app.patch("/book-room/:id/cancel", async (req, res) => {
     });
   }
 });
+
+// my listing
+app.get("/my-listing/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    const findUser = await userCollection().findOne({
+      _id: new ObjectId(id),
+    });
+
+    if (!findUser) {
+      return res.status(400).json({
+        success: false,
+        message: "User not found.",
+      });
+    }
+
+    const result = await roomsCollection()
+      .find({
+        userId: id,
+      })
+      .toArray();
+
+    return res.status(200).json({
+      success: true,
+      message: "Bookings fetched successfully",
+      data: result,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+});
+
+// get booking count by id
+
+// app.get("/booking/:id/count", async (req, res) => {
+//   try {
+//     const id = req.params.id;
+
+//       ;
+
+//     return res.status(200).json({
+//       success: true,
+//       message: "Bookings fetched successfully",
+//       data: result.length,
+//     });
+//   } catch (error) {
+//     return res.status(500).json({
+//       success: false,
+//       message: "Internal Server Error",
+//     });
+//   }
+// });
 
 app.listen(port, () => {
   console.log(`Server is running on ${port}`);
