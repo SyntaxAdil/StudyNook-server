@@ -11,10 +11,35 @@ import {
 } from "./config/db.js";
 
 import { ObjectId } from "mongodb";
+import { createRemoteJWKSet, jwtVerify } from "jose";
 
 const port = process.env.PORT || 5000;
 
 connectDB();
+
+// middleware
+
+const JWKS = createRemoteJWKSet(
+  new URL(`${process.env.CLIENT_URL || "http://localhost:3000"}/api/auth/jwks`),
+);
+const verifyToken = async (req, res, next) => {
+  const authHeader = req?.headers?.authorization;
+  if (!authHeader) {
+    return res.status(401).send("Unauthorized");
+  }
+  const token = authHeader.split(" ")[1];
+  if (!token) {
+    return res.status(401).send("Unauthorized");
+  }
+  try {
+    const { payload } = await jwtVerify(token, JWKS);
+
+    req.user=payload
+    next();
+  } catch (error) {
+    return res.status(404).send("Forbidden");
+  }
+};
 
 // create room
 
@@ -97,7 +122,10 @@ app.get("/rooms", async (req, res) => {
       }
     }
 
-    const result = await roomsCollection().find(queryRoom).sort({createdAt:-1}).toArray();
+    const result = await roomsCollection()
+      .find(queryRoom)
+      .sort({ createdAt: -1 })
+      .toArray();
 
     return res.status(200).json({
       success: true,
@@ -360,9 +388,9 @@ app.post("/book-room", async (req, res) => {
 
 // my bookings
 
-app.get("/my-bookings/:id", async (req, res) => {
+app.get("/my-bookings", verifyToken, async (req, res) => {
   try {
-    const id = req.params.id;
+    const id = req.user.id;
 
     const result = await bookingCollection()
       .find({
