@@ -34,16 +34,16 @@ const verifyToken = async (req, res, next) => {
   try {
     const { payload } = await jwtVerify(token, JWKS);
 
-    req.user=payload
+    req.user = payload;
     next();
   } catch (error) {
-    return res.status(404).send("Forbidden");
+    return res.status(403).send("Forbidden");
   }
 };
 
 // create room
 
-app.post("/rooms", async (req, res) => {
+app.post("/rooms", verifyToken, async (req, res) => {
   try {
     const body = req.body;
 
@@ -53,7 +53,12 @@ app.post("/rooms", async (req, res) => {
         message: "Provide valid data",
       });
     }
-
+   if (body.userId !== req.user.id) {
+  return res.status(403).json({
+    success: false,
+    message: "Forbidden: User ID mismatch"
+  });
+}
     const newRoom = {
       ...body,
       bookingCount: 0,
@@ -200,7 +205,7 @@ app.get("/rooms/:id", async (req, res) => {
 
 // update room
 
-app.patch("/rooms/:id", async (req, res) => {
+app.patch("/rooms/:id",verifyToken, async (req, res) => {
   try {
     const id = req.params.id;
 
@@ -216,6 +221,13 @@ app.patch("/rooms/:id", async (req, res) => {
         message: "Room not found",
       });
     }
+
+   if (room.userId !== req.user.id) {
+  return res.status(403).json({
+    success: false,
+    message: "Forbidden access",
+  });
+}
 
     const result = await roomsCollection().updateOne(
       {
@@ -241,7 +253,7 @@ app.patch("/rooms/:id", async (req, res) => {
 
 // delete room
 
-app.delete("/rooms/:id", async (req, res) => {
+app.delete("/rooms/:id",verifyToken, async (req, res) => {
   try {
     const id = req.params.id;
 
@@ -255,7 +267,12 @@ app.delete("/rooms/:id", async (req, res) => {
         message: "Room not found",
       });
     }
-
+if (room.userId !== req.user.id) {
+  return res.status(403).json({
+    success: false,
+    message: "Forbidden access",
+  });
+}
     await bookingCollection().deleteMany({
       roomId: id,
     });
@@ -279,7 +296,7 @@ app.delete("/rooms/:id", async (req, res) => {
 
 // create booking
 
-app.post("/book-room", async (req, res) => {
+app.post("/book-room",verifyToken, async (req, res) => {
   try {
     const body = req.body;
 
@@ -325,7 +342,12 @@ app.post("/book-room", async (req, res) => {
         },
       ],
     };
-
+if (body.userId !== req.user.id) {
+  return res.status(403).json({
+    success: false,
+    message: "Forbidden: User ID mismatch"
+  });
+}
     const existingBooking = await bookingCollection()
       .find(conflictQuery)
       .toArray();
@@ -413,12 +435,11 @@ app.get("/my-bookings", verifyToken, async (req, res) => {
 
 // cancel booking
 
-app.patch("/book-room/:id/cancel", async (req, res) => {
+app.patch("/book-room/:id/cancel", verifyToken, async (req, res) => {
   try {
     const id = req.params.id;
 
     const body = req.body;
-    console.log(id, "cancel room");
 
     const booking = await bookingCollection().findOne({
       _id: new ObjectId(id),
@@ -429,6 +450,15 @@ app.patch("/book-room/:id/cancel", async (req, res) => {
         success: false,
         message: "Booking not found",
       });
+    }
+
+  
+    if (booking.bookedBy !== req.user.id){
+        return res.status(403).json({
+    success: false,
+    message: "Forbidden access",
+  });
+
     }
 
     const result = await bookingCollection().updateOne(
