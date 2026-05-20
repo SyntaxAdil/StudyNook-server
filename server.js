@@ -482,9 +482,9 @@ app.patch("/book-room/:id/cancel", async (req, res) => {
 });
 
 // my listing
-app.get("/my-listing/:id", async (req, res) => {
+app.get("/my-listing", verifyToken, async (req, res) => {
   try {
-    const id = req.params.id;
+    const id = req.user.id;
 
     const findUser = await userCollection().findOne({
       _id: new ObjectId(id),
